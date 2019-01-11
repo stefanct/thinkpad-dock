@@ -5,9 +5,6 @@
 # NB: you will need to modify the username and tweak the xrandr
 # commands to suit your setup.
 
-# wait for the dock state to change
-sleep 0.5
-
 username=sflaniga
 
 #export IFS=$"\n"
