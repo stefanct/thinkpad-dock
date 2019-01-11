@@ -12,10 +12,10 @@ username=sflaniga
 
 #export IFS=$"\n"
 
-if [[ "$ACTION" == "add" ]]; then
+if [ "$ACTION" = "add" ]; then
   DOCKED=1
   logger -t DOCKING "Detected condition: docked"
-elif [[ "$ACTION" == "remove" ]]; then
+elif [ "$ACTION" = "remove" ]; then
   DOCKED=0
   logger -t DOCKING "Detected condition: un-docked"
 else
@@ -33,7 +33,7 @@ for p in $*; do
   esac
 done
 
-function switch_to_local {
+switch_to_undocked () {
   export DISPLAY=$1
   #export XAUTHORITY=$(find /var/run/kdm -name "A${DISPLAY}-*")
   #export XAUTHORITY=/var/run/lightdm/sflaniga/xauthority
@@ -49,7 +49,7 @@ function switch_to_local {
     '
 }
 
-function switch_to_external {
+switch_to_docked () {
   export DISPLAY=$1
   #export XAUTHORITY=/var/run/lightdm/sflaniga/xauthority
   #export XAUTHORITY=$(find /var/run/kdm -name "A${DISPLAY}-*")
@@ -76,9 +76,7 @@ function switch_to_external {
 
 case "$DOCKED" in
   "0")
-    #undocked event
-    switch_to_local :0 ;;
+    switch_to_undocked :0 ;;
   "1")
-    #docked event
-    switch_to_external :0 ;;
+    switch_to_docked :0 ;;
 esac
