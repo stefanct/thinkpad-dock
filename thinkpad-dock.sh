@@ -34,9 +34,6 @@ for p in $*; do
 done
 
 switch_to_undocked () {
-  export DISPLAY=$1
-  #export XAUTHORITY=$(find /var/run/kdm -name "A${DISPLAY}-*")
-  #export XAUTHORITY=/var/run/lightdm/${username}/xauthority
   logger -t DOCKING "Switching off HDMI2/3 and switching on LVDS1"
   su $username -c '
     /usr/bin/xrandr \
@@ -50,9 +47,6 @@ switch_to_undocked () {
 }
 
 switch_to_docked () {
-  export DISPLAY=$1
-  #export XAUTHORITY=/var/run/lightdm/${username}/xauthority
-  #export XAUTHORITY=$(find /var/run/kdm -name "A${DISPLAY}-*")
 
   # The Display port on the docking station is on HDMI2 - let's use it and turn off local display
   logger -t DOCKING "Switching off LVDS1 and switching on HDMI2/3"
@@ -74,9 +68,13 @@ switch_to_docked () {
   #/usr/bin/xrandr --output LVDS1 --auto
 }
 
+export DISPLAY=:0
+#export XAUTHORITY=$(find /var/run/kdm -name "A${DISPLAY}-*")
+#export XAUTHORITY=/var/run/lightdm/${username}/xauthority
+
 case "$DOCKED" in
   "0")
-    switch_to_undocked :0 ;;
+    switch_to_undocked ;;
   "1")
-    switch_to_docked :0 ;;
+    switch_to_docked ;;
 esac
