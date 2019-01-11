@@ -2,8 +2,8 @@
 
 # Save this file as /usr/local/sbin/thinkpad-dock.sh
 
-# NB: you will need to modify the username and tweak the xrandr
-# commands to suit your setup.
+# NB: you will need to create the xrandr_<hostname>_(sh)docked.sh scripts
+# comprising xrandr commands to suit your setup in your ~/bin/.
 
 # Get name of user logged into X (attached to tty7)
 username=$(w -hs | grep tty7 | cut -f1 -d ' ')
@@ -34,38 +34,13 @@ for p in $*; do
 done
 
 switch_to_undocked () {
-  logger -t DOCKING "Switching off HDMI2/3 and switching on LVDS1"
-  su $username -c '
-    /usr/bin/xrandr \
-      --output HDMI1 --off \
-      --output HDMI2 --off \
-      --output HDMI3 --off \
-      --output VGA1  --off \
-      --output eDP1  --auto \
-      --output LVDS1 --auto \
-    '
+  logger -t DOCKING "Switching displays to undocked mode"
+  su $username -c "/home/$username/bin/xrandr_$(hostname)_undocked.sh"
 }
 
 switch_to_docked () {
-
-  # The Display port on the docking station is on HDMI2 - let's use it and turn off local display
-  logger -t DOCKING "Switching off LVDS1 and switching on HDMI2/3"
-
-  su $username -c '
-    /usr/bin/xrandr \
-      --output eDP1  --off \
-      --output LVDS1 --off \
-      --output HDMI1 --auto \
-      --output HDMI2 --auto --pos 1680x0 --rotate left \
-      --output HDMI3 --auto --pos 0x600 --primary \
-      --output VGA1  --auto \
-    '
-  # alternative:
-  # xrandr --output LVDS1 --off --output HDMI3 --primary --auto --pos 0x0
-  # --output HDMI2 --auto --rotate left --pos 1680x-600
-
-  # this will probably fail ("Configure crtc 2 failed"):
-  #/usr/bin/xrandr --output LVDS1 --auto
+  logger -t DOCKING "Switching displays to docked mode"
+  su $username -c "/home/$username/bin/xrandr_$(hostname)_docked.sh"
 }
 
 export DISPLAY=:0
