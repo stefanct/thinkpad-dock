@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-# Save this file as /etc/sbin/thinkpad-dock.sh
+# Save this file as /usr/local/sbin/thinkpad-dock.sh
 
 # NB: you will need to modify the username and tweak the xrandr
 # commands to suit your setup.
