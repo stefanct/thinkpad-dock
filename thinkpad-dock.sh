@@ -5,9 +5,12 @@
 # NB: you will need to modify the username and tweak the xrandr
 # commands to suit your setup.
 
-username=sflaniga
-
-#export IFS=$"\n"
+# Get name of user logged into X (attached to tty7)
+username=$(w -hs | grep tty7 | cut -f1 -d ' ')
+if [ -z ${username} ]; then
+  logger -t DOCKING "Nobody seems to be logged in - aborting"
+  exit 0
+fi
 
 if [ "$ACTION" = "add" ]; then
   DOCKED=1
@@ -33,7 +36,7 @@ done
 switch_to_undocked () {
   export DISPLAY=$1
   #export XAUTHORITY=$(find /var/run/kdm -name "A${DISPLAY}-*")
-  #export XAUTHORITY=/var/run/lightdm/sflaniga/xauthority
+  #export XAUTHORITY=/var/run/lightdm/${username}/xauthority
   logger -t DOCKING "Switching off HDMI2/3 and switching on LVDS1"
   su $username -c '
     /usr/bin/xrandr \
@@ -48,7 +51,7 @@ switch_to_undocked () {
 
 switch_to_docked () {
   export DISPLAY=$1
-  #export XAUTHORITY=/var/run/lightdm/sflaniga/xauthority
+  #export XAUTHORITY=/var/run/lightdm/${username}/xauthority
   #export XAUTHORITY=$(find /var/run/kdm -name "A${DISPLAY}-*")
 
   # The Display port on the docking station is on HDMI2 - let's use it and turn off local display
