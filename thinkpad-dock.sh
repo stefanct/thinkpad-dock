@@ -2,8 +2,31 @@
 
 # Save this file as /usr/local/sbin/thinkpad-dock.sh
 
-# NB: you will need to create the xrandr_<hostname>_(sh)docked.sh scripts
+# NB: you will need to create the xrandr_<hostname>_(<edid_hash>|un)docked.sh scripts
 # comprising xrandr commands to suit your setup in your ~/bin/.
+# You can find out the correct values for <hostname> and <edid_hash> by
+# sourcing this script (". /usr/local/sbin/thinkpad-dock.sh") and executing
+# "hostname" and "hash_sysfs_edid" respectively.
+
+# Hash displays' EDIDs to differentiate between multiple docking stations
+# (they don't have a serial number, thus the next best thing to use for ID
+# are the attached displays and known USB devices (unimplemented)).
+#
+# Stolen and modified from
+#   https://github.com/phillipberndt/autorandr/blob/legacy/autorandr#L128
+# which might be a better alternative anyway... and has a Python rewrite as well btw.
+# This version of setup_fp_sysfs_edid() simply concatenates the md5 hashes
+# of all connected monitors and hashes them again so that the output is
+# always 32 characters long.
+hash_sysfs_edid () {
+  edid_hash=""
+	for DEVICE in /sys/class/drm/card*-*; do
+		[ -e "${DEVICE}/status" ] && grep -q "^connected$" "${DEVICE}/status" || continue
+      edid_hash="${edid_hash}"$(md5sum "${DEVICE}/edid" | awk '{print $1}')
+	done
+  echo $(echo "$edid_hash" | md5sum | awk '{print $1}')
+}
+
 
 switch_to_undocked () {
   logger -t DOCKING "Switching displays to undocked mode"
@@ -12,7 +35,7 @@ switch_to_undocked () {
 
 switch_to_docked () {
   logger -t DOCKING "Switching displays to docked mode"
-  su $username -c "/home/$username/bin/xrandr_$(hostname)_docked.sh"
+  su $username -c "/home/$username/bin/xrandr_$(hostname)_$(hash_sysfs_edid)_docked.sh"
 }
 
 thinkpad_dock_main () {
